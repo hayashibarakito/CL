@@ -84,4 +84,20 @@ if __name__ == '__main__':
 
     for epoch in range(EPOCHS):
 
-        loss_epoch = train(args, model, tra
+        loss_epoch = train(args, model, train_loader, criterion, optimizer, scheduler, epoch)
+        # scheduler.step()
+        x_epoch_data.append(epoch)
+        y_train_loss_data.append(loss_epoch)
+
+
+    plt.plot(x_epoch_data, y_train_loss_data, color='blue', label='train_loss')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend(loc='upper right')
+    plt.title('loss')
+    plt.show()
+
+    if args.save_model:
+        model_name = str(y_train_loss_data[-1]) + '.pth'
+        torch.save(model.state_dict(), model_name)
+        print(f'Saved model as {model_name}')
