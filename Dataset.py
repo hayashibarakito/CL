@@ -17,7 +17,7 @@ from models import *
 from losses import *
 
 def make_datapath_dic(phase='train'):
-    root_path = './data_ex/' + phase
+    root_path = './data/' + phase
     class_list = os.listdir(root_path)
     class_list = [class_name for class_name in class_list if not class_name.startswith('.')]
     datapath_dic = {}

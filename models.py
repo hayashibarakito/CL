@@ -1,11 +1,20 @@
+import os
 import torch
-from torch import nn
-from torch import optim
-from torch.utils.data import DataLoader
-from torch.optim import lr_scheduler
+import torch.nn as nn
+import torchvision
+import pytorch_lightning as pl
+import lightly
+import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import normalize
+from PIL import Image
+import numpy as np
 import torch.nn.functional as F
 
 import timm
+
+from lightly.models.modules.heads import SimCLRProjectionHead
+from lightly.loss import NTXentLoss
 
 class SupConModel(nn.Module):
 
@@ -73,3 +82,20 @@ class BasicModel(nn.Module):
         h = self.head_cls(h)
         return h
 
+class SimCLRModel(pl.LightningModule):
+    def __init__(self):
+        super().__init__()
+
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+
+        hidden_dim = resnet.fc.in_features
+        self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, 128)
+
+        self.criterion = NTXentLoss()
+
+    def forward(self, x):
+        h = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(h)
+        return z

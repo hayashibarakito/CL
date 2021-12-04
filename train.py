@@ -17,13 +17,12 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 import torch.nn.functional as F
 
-import timm
-
 from Dataset import *
 from losses import *
 from models import *
 from parameters import args
 
+from lightly.loss import NTXentLoss
 
 
 def train(args, model, train_loader, criterion, optimizer, scheduler, epoch):
@@ -34,13 +33,11 @@ def train(args, model, train_loader, criterion, optimizer, scheduler, epoch):
 
         images = torch.cat([anchor[0], da_anchor[1]], dim=0)
         images = images
-        target = label
-        
+
         optimizer.zero_grad()
         f1 = model(anchor)
         f2 = model(da_anchor)
-        features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1)
-        loss = criterion(features, target)
+        loss = criterion(f1, f2)
 
         loss.backward()
         optimizer.step()
@@ -70,7 +67,7 @@ if __name__ == '__main__':
     model = SupConModel("resnet18",128)
     model = model.to(DEVICE)
 
-    criterion = SupConLoss()
+    criterion = NTXentLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1.0e-03, weight_decay=1.0e-02)
     scheduler = lr_scheduler.OneCycleLR(optimizer, epochs=EPOCHS, steps_per_epoch=len(train_loader),
                                         max_lr=1.0e-3, pct_start=0.1, anneal_strategy='cos',

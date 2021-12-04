@@ -149,6 +149,10 @@ class SimCLRModel(pl.LightningModule):
 gpus = 1 if torch.cuda.is_available() else 0
 
 model = SimCLRModel()
+
+from torchsummary import summary
+summary(model,(3,224,224)) # summary(model,(channels,H,W))
+
 trainer = pl.Trainer(
     max_epochs=max_epochs, gpus=gpus, progress_bar_refresh_rate=100
 )
