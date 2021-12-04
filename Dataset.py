@@ -30,12 +30,6 @@ def make_datapath_dic(phase='train'):
 
     return datapath_dic
     
-#dic = make_datapath_dic(phase='train')
-#print(dic)
-#print(dic.keys())
-#print(dic[0])
-#print(dic.values())
-
 class ImageTransform():
     def __init__(self, size, s=1):
             """Return a set of data augmentation transformations as described in the SimCLR paper."""
@@ -56,7 +50,7 @@ class ImageTransform():
         return self.data_transform[phase](img)
 
 class MyDataset(Dataset):
-    def __init__(self, datapath_dic, transform=None, phase='train'):
+    def __init__(self, datapath_dic, transform, phase='train'):
         self.datapath_dic = datapath_dic
         self.transform = transform
         self.phase = phase
@@ -72,7 +66,6 @@ class MyDataset(Dataset):
 
     def __getitem__(self, idx):
         image_path = self.all_datapath[idx]
-        #print(image_path)
 
         image = self.transform(Image.open(image_path), self.phase)
         da_image = self.transform(Image.open(image_path), self.phase)
@@ -97,32 +90,32 @@ class MyDataset(Dataset):
             image_label = 8
         elif 'truck' in image_path:
             image_label = 9
-
-        #print(image_label)
         
         return image, da_image, image_label
 
 """
-train_dic = make_datapath_dic(phase='train')
-transform = ImageTransform(224)
-train_dataset = MyDataset(train_dic, transform=transform, phase='train')
+#画像の読み込み
 batch_size = 5
+train_loader = DataLoader(MyDataset(make_datapath_dic(phase='train'),ImageTransform(224)),batch_size=batch_size,shuffle=True)
 
-model = SupConModel("resnet18",128)
-criterion = SupConLoss()
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+def image_show(train_loader,n):
 
-for batch_idx, (anchor, da_anchor, label) in enumerate(train_loader):
+  #Augmentationした画像データを読み込む
+  tmp = iter(train_loader)
+  images,da_images,labels = tmp.next()
 
-        images = torch.cat([anchor[0], da_anchor[1]], dim=0)
-        images = images
-        target = label
-        bsz = target.shape[0]
+  #画像をtensorからnumpyに変換
+  images = images.numpy()
+  da_images = da_images.numpy()
 
-        f1 = model(anchor)
-        f2 = model(da_anchor)
-        features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1)
-        loss = criterion(features, target)
-        break
+  #n枚の画像を1枚ずつ取り出し、表示する
+  for i in range(n):
+    image = np.transpose(images[i],[1,2,0])
+    plt.imshow(image)
+    plt.show()
+    da_images = np.transpose(da_images[i],[1,2,0])
+    plt.imshow(da_images)
+    plt.show()
+
+image_show(train_loader,10)
 """
-    
