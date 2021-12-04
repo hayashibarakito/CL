@@ -19,7 +19,7 @@ import numpy as np
 #
 # The default configuration with a batch size of 256 and input resolution of 128
 # requires 6GB of GPU memory.
-num_workers = 8
+num_workers = 0
 batch_size = 256
 seed = 1
 max_epochs = 20
