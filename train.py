@@ -31,8 +31,8 @@ def train(args, model, train_loader, criterion, optimizer, scheduler, epoch):
 
     for batch_idx, (anchor, da_anchor, label) in enumerate(train_loader):
 
-        images = torch.cat([anchor[0], da_anchor[1]], dim=0)
-        images = images
+        anchor = anchor.to(DEVICE)
+        da_anchor = da_anchor.to(DEVICE)
 
         optimizer.zero_grad()
         f1 = model(anchor)
@@ -58,12 +58,12 @@ if __name__ == '__main__':
     train_dic = make_datapath_dic(phase='train')
     transform = ImageTransform(224)
     train_dataset = MyDataset(train_dic, transform=transform, phase='train')
-    batch_size = 32
+    batch_size = 64
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     
     DEVICE = ('cuda' if torch.cuda.is_available() else 'cpu')
-    EPOCHS = 30
+    EPOCHS = 100
     model = SupConModel("resnet18",128)
     model = model.to(DEVICE)
 
@@ -94,7 +94,6 @@ if __name__ == '__main__':
     plt.title('loss')
     plt.show()
 
-    if args.save_model:
-        model_name = str(y_train_loss_data[-1]) + '.pth'
-        torch.save(model.state_dict(), model_name)
-        print(f'Saved model as {model_name}')
+    model_name = str(y_train_loss_data[-1]) + '.pth'
+    torch.save(model.state_dict(), model_name)
+    print(f'Saved model as {model_name}')
