@@ -91,6 +91,8 @@ class SimCLRModel(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
 
         hidden_dim = resnet.fc.in_features
+        #print(hidden_dim)
+        print(self.backbone)
         self.projection_head = SimCLRProjectionHead(hidden_dim, hidden_dim, 128)
 
         self.criterion = NTXentLoss()
@@ -99,3 +101,5 @@ class SimCLRModel(pl.LightningModule):
         h = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(h)
         return z
+
+SimCLRModel()

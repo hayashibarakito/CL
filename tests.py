@@ -12,6 +12,7 @@ from models import *
 from parameters import args
 
 if __name__ == '__main__':
+    
     test_dic = make_datapath_dic('test')
     transform = ImageTransform(64)
     test_dataset = MyDataset(test_dic, transform=transform, phase='test')
@@ -19,9 +20,11 @@ if __name__ == '__main__':
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = SupConLoss()
+    #model = SupConModel("resnet18",128)
+    model = SimCLRModel()
+    # supcon_model.load_state_dict(torch.load('filename'))
     model.eval()
-    model_weights = '0.14895377705494564.pth' #保存した重みをロード
+    model_weights = 'model.pth' #保存した重みをロード
     model.load_state_dict(torch.load(model_weights))
 
     summary(model, (3, 224, 224))
