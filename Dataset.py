@@ -90,6 +90,8 @@ class MyDataset(Dataset):
             image_label = 8
         elif 'truck' in image_path:
             image_label = 9
+        else :
+            image_label = None
         
         return image, da_image, image_label
 
